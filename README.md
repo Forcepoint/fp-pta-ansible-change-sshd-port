@@ -5,6 +5,8 @@ Copied and modified with permission from https://dmsimard.com/2016/03/15/changin
 Modifications include running some of the commands with become, using the ansible_host variable instead
 of inventory_hostname, and changing a when statement to fix a bug.
 
+For information about PTA and how to use it with this Ansible role please visit https://github.com/Forcepoint/fp-pta-overview/blob/master/README.md
+
 ## Requirements
 
 Do not run gather_facts when you call this role.
