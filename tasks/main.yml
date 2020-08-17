@@ -103,7 +103,6 @@
       - libselinux-python
       - policycoreutils-python
     state: latest
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version <= '7'
 
 - name: Setup selinux for alternate SSH port
   become: yes
