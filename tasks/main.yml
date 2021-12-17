@@ -79,6 +79,9 @@
 - name: Confirm host connection works
   ansible.builtin.ping:
 
+- name: populate service facts
+  ansible.builtin.service_facts:
+
 - name: Set the firewall to allow the new SSH port
   become: yes
   ansible.posix.firewalld:
@@ -87,6 +90,11 @@
     permanent: yes
     state: enabled
   notify: "restart firewalld"
+  vars:
+    change_sshd_port_firewalld_name: 'firewalld.service'
+  when:
+    - change_sshd_port_firewalld_name in ansible_facts.services
+    - ansible_facts.services['firewalld.service']['status'] == 'enabled'
 
 - name: Setup alternate SSH port
   become: yes
@@ -96,21 +104,40 @@
     line: "Port {{ configured_port }}"
   notify: "restart sshd"
 
-- name: install pre-requisites for using selinux commands
-  become: yes
-  ansible.builtin.yum:
-    name:
-      - libselinux-python
-      - policycoreutils-python
-    state: latest
+- name: collect only selected facts
+  ansible.builtin.setup:
+    filter:
+      - 'ansible_distribution'
+      - 'ansible_distribution_major_version'
 
-- name: Setup selinux for alternate SSH port
+- name: setup selinux for alternate ssh port (<=7)
   become: yes
   community.general.seport:
     ports: "{{ configured_port }}"
     proto: "tcp"
     setype: "ssh_port_t"
     state: "present"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version <= '7'
+
+# Needed to run semanage to set the port for selinux.
+- name: install policycoreutils
+  become: yes
+  ansible.builtin.dnf:
+    name: policycoreutils
+    state: latest
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version > '7'
+
+- name: setup selinux for alternate ssh port (8+) - add
+  become: yes
+  ansible.builtin.shell: semanage port -a -t ssh_port_t -p tcp {{ configured_port }}
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version > '7'
+  notify: "restart sshd"
+
+- name: setup selinux for alternate ssh port (8+) - modify
+  become: yes
+  ansible.builtin.shell: semanage port -m -t ssh_port_t -p tcp {{ configured_port }}
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version > '7'
+  notify: "restart sshd"
 
 # We notified "restart sshd" if we modified the sshd config.
 # By calling flush_handlers, we make sure the handler is run *right now*
