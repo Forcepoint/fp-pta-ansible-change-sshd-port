@@ -79,6 +79,9 @@
 - name: Confirm host connection works
   ansible.builtin.ping:
 
+- name: populate service facts
+  ansible.builtin.service_facts:
+
 - name: Set the firewall to allow the new SSH port
   become: yes
   ansible.posix.firewalld:
@@ -87,6 +90,7 @@
     permanent: yes
     state: enabled
   notify: "restart firewalld"
+  when: "firewalld" in (ansible_facts.services.values() | map(attribute='name') | list) and ansible_facts.services['firewalld.service']['status'] == 'enabled'
 
 - name: Setup alternate SSH port
   become: yes
