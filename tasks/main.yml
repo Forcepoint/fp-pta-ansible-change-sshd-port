@@ -104,6 +104,12 @@
     line: "Port {{ configured_port }}"
   notify: "restart sshd"
 
+- name: collect only selected facts
+  ansible.builtin.setup:
+    filter:
+      - 'ansible_distribution'
+      - 'ansible_distribution_major_version'
+
 - name: setup selinux for alternate ssh port (<=7)
   become: yes
   community.general.seport:
