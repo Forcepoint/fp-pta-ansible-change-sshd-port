@@ -1,17 +1,6 @@
 ---
 # handlers file for change-sshd-port
 
-- name: restart firewalld
-  become: yes
-  service:
-    name: firewalld
-    state: restarted
-  vars:
-    change_sshd_port_firewalld_name: 'firewalld.service'
-  when:
-    - change_sshd_port_firewalld_name in ansible_facts.services
-    - ansible_facts.services['firewalld.service']['status'] == 'enabled'
-
 - name: restart sshd
   become: yes
   service:
