@@ -90,7 +90,7 @@
     permanent: yes
     state: enabled
   notify: "restart firewalld"
-  when: "firewalld" in (ansible_facts.services.values() | map(attribute='name') | list) and ansible_facts.services['firewalld.service']['status'] == 'enabled'
+  when: 'firewalld' in (ansible_facts.services.values() | map(attribute='name') | list) and ansible_facts.services['firewalld.service']['status'] == 'enabled'
 
 - name: Setup alternate SSH port
   become: yes
