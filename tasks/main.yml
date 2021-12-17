@@ -104,6 +104,21 @@
     line: "Port {{ configured_port }}"
   notify: "restart sshd"
 
+# Needed to run semanage to set the port for selinux.
+- name: install policycoreutils
+  become: yes
+  ansible.builtin.dnf:
+    name: policycoreutils
+    state: latest
+
+- name: Setup selinux for alternate SSH port
+  become: yes
+  community.general.seport:
+    ports: "{{ configured_port }}"
+    proto: "tcp"
+    setype: "ssh_port_t"
+    state: "present"
+
 # We notified "restart sshd" if we modified the sshd config.
 # By calling flush_handlers, we make sure the handler is run *right now*
 - name: Ensure SSH is reloaded if need be
