@@ -104,6 +104,12 @@
     line: "Port {{ configured_port }}"
   notify: "restart sshd"
 
+- name: install pip libselinux-python (needed for module community.general.seport)
+  become: yes
+  ansible.builtin.pip:
+    name: libselinux-python
+    state: latest
+
 - name: Setup selinux for alternate SSH port
   become: yes
   community.general.seport:
