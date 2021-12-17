@@ -90,8 +90,10 @@
     permanent: yes
     state: enabled
   notify: "restart firewalld"
+  vars:
+    change_sshd_port_firewalld_name: 'firewalld.service'
   when:
-    - 'firewalld.service' in ansible_facts.services
+    - change_sshd_port_firewalld_name in ansible_facts.services
     - ansible_facts.services['firewalld.service']['status'] == 'enabled'
 
 - name: Setup alternate SSH port
