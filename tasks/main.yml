@@ -104,12 +104,6 @@
     line: "Port {{ configured_port }}"
   notify: "restart sshd"
 
-- name: install pip libselinux-python (needed for module community.general.seport)
-  become: yes
-  ansible.builtin.pip:
-    name: libselinux-python
-    state: latest
-
 # We notified "restart sshd" if we modified the sshd config.
 # By calling flush_handlers, we make sure the handler is run *right now*
 - name: Ensure SSH is reloaded if need be
