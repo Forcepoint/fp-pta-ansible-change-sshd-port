@@ -21,10 +21,8 @@
 - name: Confirm host connection works
   ansible.builtin.ping:
 
-- name: populate service facts
-  ansible.builtin.service_facts:
-
-- name: Install packages
+- name: Install firewalld
+  become: yes
   dnf:
     name:
       - firewalld
@@ -34,9 +32,12 @@
 - name: Set firewalld to be enabled
   become: yes
   ansible.builtin.systemd:
-    state: stopped
+    state: started
     name: firewalld
     enabled: true
+
+- name: populate service facts
+  ansible.builtin.service_facts:
 
 - name: Set the firewall to allow the new SSH port
   become: yes
