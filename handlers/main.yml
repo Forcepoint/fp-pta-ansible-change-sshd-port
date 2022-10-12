@@ -7,7 +7,7 @@
     name: sshd
     state: restarted
 
-- name: restart firewall
+- name: restart firewalld
   become: yes
   service:
     name: firewalld
